@@ -16,23 +16,35 @@
  *******************************************************************************/
 package org.mitre.web;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Locale;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.mitre.openid.connect.client.OIDCAuthenticationFilter;
 import org.mitre.openid.connect.client.SubjectIssuerGrantedAuthority;
+import org.mitre.openid.connect.model.OIDCAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -92,10 +104,26 @@ public class HomeController {
 		return "login";
 	}
 
-	
+	@ResponseBody
 	@RequestMapping("/photo")
-	@PreAuthorize("hasRole('ROLE_USER')")
-	public ModelAndView photo(){
-		return new ModelAndView("redirect:http://localhost:8090/photo");
+	public String photo(){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication instanceof OIDCAuthenticationToken){
+			OIDCAuthenticationToken oIDCAuthenticationToken = (OIDCAuthenticationToken) authentication;
+			String accessTokenValue = oIDCAuthenticationToken.getAccessTokenValue();
+			try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+				HttpGet httpGet = new HttpGet("http://localhost:8090/simple-web-app/photo?access_token=" + accessTokenValue);
+				CloseableHttpResponse response = httpClient.execute(httpGet);
+				
+				 String content = IOUtils.toString(response.getEntity().getContent());
+				
+				 return content;
+			} catch (Exception e) {
+				 
+			}
+			
+		}
+		 
+		return null;
 	}
 }
