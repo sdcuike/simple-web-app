@@ -28,10 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Handles requests for the application home page.
@@ -90,4 +92,10 @@ public class HomeController {
 		return "login";
 	}
 
+	
+	@RequestMapping("/photo")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ModelAndView photo(){
+		return new ModelAndView("redirect:http://localhost:8090/photo");
+	}
 }

@@ -177,7 +177,7 @@
 		Hybrid server configuration. Tries to look up a statically configured server in the map, does
 		dynamic OIDC Discovery if the static lookup fails.
 	-->
-	<bean class="org.mitre.openid.connect.client.service.impl.HybridServerConfigurationService">
+	<bean id="hybridServerConfigurationService"  class="org.mitre.openid.connect.client.service.impl.HybridServerConfigurationService">
 		<property name="servers">
 			<map>
 				<entry key="http://localhost:8080/openid-connect-server-webapp/">
@@ -433,4 +433,19 @@
  		<property name="signingAndValidationService" ref="defaultSignerService" />
  	</bean>
  		 
+ 		 
+ 		 
+   <oauth2:resource-server id="resourceServerFilter" token-services-ref="introspectingService" /> 
+
+   <bean id="introspectingService" class="org.mitre.oauth2.introspectingfilter.IntrospectingTokenService">
+       <property name="introspectionConfigurationService"  ref="jWTParsingIntrospectionUrlProvider"/>
+       <property name="introspectionAuthorityGranter"  ref="simpleIntrospectionAuthorityGranter"/>
+    </bean>
+
+ <bean id="jWTParsingIntrospectionUrlProvider" class="org.mitre.oauth2.introspectingfilter.service.impl.JWTParsingIntrospectionConfigurationService"  >
+   <property name="serverConfigurationService" ref="hybridServerConfigurationService" />
+   <property name="clientConfigurationService" ref="hybridClientConfigurationService" />
+</bean>
+
+<bean  id="simpleIntrospectionAuthorityGranter" class="org.mitre.oauth2.introspectingfilter.service.impl.SimpleIntrospectionAuthorityGranter" />
 </beans>

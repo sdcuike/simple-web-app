@@ -37,6 +37,9 @@
 					<security:authorize access="!hasRole('ROLE_USER')">
 						<li><a href="login">Log in</a>, log in directly and return to this page.</li>
 					</security:authorize>
+					
+					<li><a href="photo">Photos</a>, Photos.</li>
+					
 				</ul>
 			
 			
