@@ -112,7 +112,7 @@ public class HomeController {
 			OIDCAuthenticationToken oIDCAuthenticationToken = (OIDCAuthenticationToken) authentication;
 			String accessTokenValue = oIDCAuthenticationToken.getAccessTokenValue();
 			try(CloseableHttpClient httpClient = HttpClients.createDefault()){
-				HttpGet httpGet = new HttpGet("http://localhost:8090/simple-web-app/photo?access_token=" + accessTokenValue);
+				HttpGet httpGet = new HttpGet("http://localhost:8090/simple-resource-service/photo?access_token=" + accessTokenValue);
 				CloseableHttpResponse response = httpClient.execute(httpGet);
 				
 				 String content = IOUtils.toString(response.getEntity().getContent());
