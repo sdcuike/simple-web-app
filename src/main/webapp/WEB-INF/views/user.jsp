@@ -35,7 +35,7 @@
 
 				<p>Your ID Token has the following set of claims:</p>
 				
-				<security:authentication property="idTokenValue" var="idToken" />
+				<security:authentication property="idToken" var="idToken" />
 				<table class="table table-striped table-hover" id="idTokenTable">
 					<thead>
 						<tr>
