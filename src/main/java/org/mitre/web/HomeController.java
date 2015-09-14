@@ -16,7 +16,6 @@
  *******************************************************************************/
 package org.mitre.web;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.Locale;
 import java.util.Set;
@@ -24,8 +23,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -41,11 +38,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Handles requests for the application home page.
@@ -58,10 +53,10 @@ public class HomeController {
 	// filter reference so we can get class names and things like that.
 	@Autowired
 	private OIDCAuthenticationFilter filter;
-	
+
 	@Resource(name = "namedAdmins")
 	private Set<SubjectIssuerGrantedAuthority> admins;
-	
+
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
@@ -73,7 +68,7 @@ public class HomeController {
 		model.addAttribute("clientConfigurationServiceClass", filter.getClientConfigurationService().getClass().getSimpleName());
 		model.addAttribute("authRequestOptionsServiceClass", filter.getAuthRequestOptionsService().getClass().getSimpleName());
 		model.addAttribute("authRequestUriBuilderClass", filter.getAuthRequestUrlBuilder().getClass().getSimpleName());
-		
+
 		model.addAttribute("admins", admins);
 
 		return "home";
@@ -106,24 +101,26 @@ public class HomeController {
 
 	@ResponseBody
 	@RequestMapping("/photo")
-	public String photo(){
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public String photo() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication instanceof OIDCAuthenticationToken){
+		if (authentication instanceof OIDCAuthenticationToken) {
 			OIDCAuthenticationToken oIDCAuthenticationToken = (OIDCAuthenticationToken) authentication;
 			String accessTokenValue = oIDCAuthenticationToken.getAccessTokenValue();
-			try(CloseableHttpClient httpClient = HttpClients.createDefault()){
-				HttpGet httpGet = new HttpGet("http://localhost:8090/simple-resource-service/photo?access_token=" + accessTokenValue);
+			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+				HttpGet httpGet = new HttpGet("http://localhost:8090/simple-resource-service/photo");
+				httpGet.addHeader("access_token", accessTokenValue);
 				CloseableHttpResponse response = httpClient.execute(httpGet);
-				
-				 String content = IOUtils.toString(response.getEntity().getContent());
-				
-				 return content;
+
+				String content = IOUtils.toString(response.getEntity().getContent());
+
+				return content;
 			} catch (Exception e) {
-				 
+
 			}
-			
+
 		}
-		 
+
 		return null;
 	}
 }
