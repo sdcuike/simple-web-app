@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:security="http://www.springframework.org/schema/security"
-	xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:util="http://www.springframework.org/schema/util"
+<beans xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:oauth2="http://www.springframework.org/schema/security/oauth2" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util" xmlns:c="http://www.springframework.org/schema/c" xmlns:p="http://www.springframework.org/schema/p"
 	xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2 http://www.springframework.org/schema/security/spring-security-oauth2-2.0.xsd
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
@@ -53,8 +47,12 @@
 	</security:http>
 
 	<bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-		<property name="loginFormUrl" value="/openid_connect_login" />
+		<constructor-arg name="loginFormUrl" value="/openid_connect_login"/>
 	</bean>
+	
+<!-- 	<bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint"> -->
+<!-- 		<property name="loginFormUrl" value="/openid_connect_login" /> -->
+<!-- 	</bean> -->
 
 	<security:authentication-manager alias="authenticationManager">
 		<security:authentication-provider ref="openIdConnectAuthenticationProvider" />
@@ -92,7 +90,7 @@
 
 		<property name="issuerService" ref="hybridIssuerService" />
 		<property name="serverConfigurationService" ref="dynamicServerConfigurationService" />
-		<property name="clientConfigurationService" ref="dynamicClientConfigurationService" />
+		<property name="clientConfigurationService" ref="staticClientConfigurationService" />
 		<property name="authRequestOptionsService" ref="staticAuthRequestOptionsService" />
 		<property name="authRequestUrlBuilder" ref="plainAuthRequestUrlBuilder" />
 		
@@ -260,8 +258,8 @@
 			<map>
 				<entry key="http://localhost:8080/openid-connect-server-webapp/">
 					<bean class="org.mitre.oauth2.model.RegisteredClient">
-						<property name="clientId" value="client" />
-						<property name="clientSecret" value="secret" />
+						<property name="clientId" value="a3e2023f-1fc8-44f8-883b-a10aa91419ef" />
+						<property name="clientSecret" value="AIOQUv6Vb3GjBIUgyWDzBaU5rWM-GCiv0fqKakp1xqc_h-e1Ok15YMCRu-kTcTkU2sKr4nKr2YdIlDb9ibn5WEA" />
 						<property name="scope">
 							<set value-type="java.lang.String">
 								<value>openid</value>
@@ -292,8 +290,8 @@
 			<map>
 				<entry key="http://localhost:8080/openid-connect-server-webapp/">
 					<bean class="org.mitre.oauth2.model.RegisteredClient">
-						<property name="clientId" value="client" />
-						<property name="clientSecret" value="secret" />
+						<property name="clientId" value="a3e2023f-1fc8-44f8-883b-a10aa91419ef" />
+						<property name="clientSecret" value="AIOQUv6Vb3GjBIUgyWDzBaU5rWM-GCiv0fqKakp1xqc_h-e1Ok15YMCRu-kTcTkU2sKr4nKr2YdIlDb9ibn5WEA" />
 						<property name="scope">
 							<set value-type="java.lang.String">
 								<value>openid</value>
@@ -435,20 +433,5 @@
  		<property name="jwkPublishUrl" value="jwk" />
  		<property name="signingAndValidationService" ref="defaultSignerService" />
  	</bean>
- 		 
- 		 
- 		 
-   <oauth2:resource-server id="resourceServerFilter" token-services-ref="introspectingService" /> 
-
-   <bean id="introspectingService" class="org.mitre.oauth2.introspectingfilter.IntrospectingTokenService">
-       <property name="introspectionConfigurationService"  ref="jWTParsingIntrospectionUrlProvider"/>
-       <property name="introspectionAuthorityGranter"  ref="simpleIntrospectionAuthorityGranter"/>
-    </bean>
-
- <bean id="jWTParsingIntrospectionUrlProvider" class="org.mitre.oauth2.introspectingfilter.service.impl.JWTParsingIntrospectionConfigurationService"  >
-   <property name="serverConfigurationService" ref="hybridServerConfigurationService" />
-   <property name="clientConfigurationService" ref="hybridClientConfigurationService" />
-</bean>
-
-<bean  id="simpleIntrospectionAuthorityGranter" class="org.mitre.oauth2.introspectingfilter.service.impl.SimpleIntrospectionAuthorityGranter" />
+  
 </beans>
