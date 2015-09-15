@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.mitre.web;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Locale;
 import java.util.Set;
@@ -23,10 +24,9 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Form;
+import org.apache.http.client.fluent.Request;
 import org.mitre.openid.connect.client.OIDCAuthenticationFilter;
 import org.mitre.openid.connect.client.SubjectIssuerGrantedAuthority;
 import org.mitre.openid.connect.model.OIDCAuthenticationToken;
@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -107,20 +108,22 @@ public class HomeController {
 		if (authentication instanceof OIDCAuthenticationToken) {
 			OIDCAuthenticationToken oIDCAuthenticationToken = (OIDCAuthenticationToken) authentication;
 			String accessTokenValue = oIDCAuthenticationToken.getAccessTokenValue();
-			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				HttpGet httpGet = new HttpGet("http://localhost:8090/simple-resource-service/photo");
-				httpGet.addHeader("access_token", accessTokenValue);
-				CloseableHttpResponse response = httpClient.execute(httpGet);
 
+			Form form = Form.form().add("access_token", accessTokenValue);
+
+			HttpResponse response;
+			try {
+				response = Request.Post("http://localhost:8090/simple-resource-service/photo")
+						.bodyForm(form.build())
+						.execute().returnResponse();
 				String content = IOUtils.toString(response.getEntity().getContent());
 
 				return content;
-			} catch (Exception e) {
-
+			} catch (IOException e) {
+				throw new AuthenticationServiceException("Unable to obtain Access Token: ", e);
 			}
 
 		}
-
 		return null;
 	}
 }
